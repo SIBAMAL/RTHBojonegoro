@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+
+    <link rel="stylesheet" href="css/leaflet.css">
+    <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+    <link rel="stylesheet" href="css/qgis2web.css">
+    <link rel="stylesheet" href="css/fontawesome-all.min.css">
+
+    <style>
+        /* 1. GLOBAL FONT ARIAL */
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            /* Mengganti seluruh font ke Arial */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 2. HEADER */
+        #header {
+            height: 90px;
+            /* Sedikit lebih tinggi agar logo muat nyaman */
+            background: #ffffff;
+            border-bottom: 5px solid #d8ae47;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            /* Logo Kiri - Judul Tengah - Logo Kanan */
+            padding: 0 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 2000;
+            flex-shrink: 0;
+        }
+
+        /* Container Logo Agar Rapi */
+        .logo-container {
+            width: 80px;
+            /* Lebar area logo tetap */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-logo {
+            height: 65px;
+            /* Ukuran logo */
+            width: auto;
+            object-fit: contain;
+        }
+
+        #title-container {
+            flex-grow: 1;
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        #title-main {
+            font-size: 20px;
+            /* Judul diperbesar */
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #000;
+            margin-bottom: 5px;
+        }
+
+        #title-sub {
+            font-size: 14px;
+            color: #444;
+        }
+
+        /* 3. LAYOUT UTAMA */
+        #content-wrapper {
+            display: flex;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* PETA */
+        #map {
+            flex-grow: 1;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* 4. SIDEBAR (INFORMASI TEPI) */
+        #sidebar {
+            width: 340px;
+            /* Lebar sidebar */
+            min-width: 320px;
+            height: 100%;
+            background-color: #f8f9fa;
+            border-left: 4px solid #d8ae47;
+            overflow-y: auto;
+            padding: 15px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 2;
+        }
+
+        .info-box {
+            background: #fff;
+            border: 1px solid #ccc;
+            /* Border lebih tegas */
+            border-radius: 4px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-header {
+            font-size: 16px;
+            /* Font Header Sidebar Diperbesar */
+            font-weight: bold;
+            color: #d8ae47;
+            text-transform: uppercase;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        /* PERBAIKAN LEGENDA (Agar tidak terlalu ke kanan) */
+        .leaflet-control-layers {
+            background: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+        }
+
+        .leaflet-control-layers-list {
+            padding: 0;
+            margin: 0;
+            font-size: 14px !important;
+            /* Font list layer diperbesar */
+        }
+
+        .leaflet-control-layers label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        /* Menghapus padding aneh bawaan leaflet */
+        .leaflet-control-layers-selector {
+            margin-top: 2px;
+            margin-right: 8px !important;
+            /* Jarak checkbox ke teks */
+            position: relative;
+            top: 1px;
+        }
+
+        .leaflet-control-layers-base label span,
+        .leaflet-control-layers-overlays label span {
+            font-size: 14px;
+            /* Pastikan teks nama layer besar */
+            color: #333;
+        }
+
+        /* Orientasi & Footer */
+        .north-arrow {
+            font-size: 40px;
+            font-weight: bold;
+            text-align: center;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .footer-text {
+            font-size: 13px;
+            /* Font footer diperbesar */
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Responsif HP */
+        @media (max-width: 768px) {
+            #header {
+                height: auto;
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            #title-main {
+                font-size: 16px;
+                margin: 10px 0;
+            }
+
+            #content-wrapper {
+                flex-direction: column;
+            }
+
+            #sidebar {
+                width: 100%;
+                height: 50%;
+                border-left: none;
+                border-top: 4px solid #d8ae47;
+            }
+        }
+    </style>
+
+    <title>WebGIS RTH Bojonegoro</title>
+</head>
+
+<body>
+
+    <div id="header">
+        <div class="logo-container">
+            <img src="images/logo_unesa.png" alt="Logo UNESA" class="header-logo"
+                onerror="this.src='https://via.placeholder.com/65x65?text=LOGO'">
+        </div>
+
+        <div id="title-container">
+            <div id="title-main">Persebaran Ruang Terbuka Hijau Publik</div>
+            <div id="title-sub">Kabupaten Bojonegoro Tahun 2025</div>
+        </div>
+
+        <div class="logo-container">
+            <img src="assets/logo_dlh_bojonegoro.png" alt="Logo DLH" class="header-logo"
+                onerror="this.src='https://via.placeholder.com/65x65?text=MITRA'">
+        </div>
+    </div>
+
+    <div id="content-wrapper">
+
+        <div id="map"></div>
+
+        <div id="sidebar">
+
+            <div class="info-box" style="text-align: center;">
+                <div class="info-header">Orientasi</div>
+                <div class="north-arrow">&#11014;<br><span style="font-size:14px; font-weight:normal;">U</span></div>
+                <div id="scale-target"></div>
+                <div style="font-size: 12px; margin-top: 10px; color:#555;">
+                    Sistem Koordinat: WGS 84<br>Proyeksi: Geografis
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-header">Legenda & Layer</div>
+                <div id="legend-target">
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-header">Informasi Peta</div>
+                <div class="footer-text">
+                    <b>Lokasi:</b><br>
+                    Kabupaten Bojonegoro, Jawa Timur<br><br>
+                    <b>Sumber Data:</b><br>
+                    - Dinas Lingkungan Hidup Kab. Bojonegoro<br>
+                    - Citra Satelit Resolusi Tinggi<br><br>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-header">Tim Penyusun</div>
+                <div class="footer-text" style="text-align: center;">
+                    <b>Penyusun:</b><br>
+                    <img src="images/logo_unesa.png" alt="Logo UNESA" style="height: 55px; width: auto;"
+                        onerror="this.style.display='none'">
+                        <br>
+                    Universitas Negeri Surabaya<br>
+                    <br>
+                    <b>Mitra Kerjasama:</b><br>
+                    <img src="images/dlh_bojonegoro.png" alt="Logo DLH" style="height: 55px; width: auto;"
+                        onerror="this.style.display='none'">
+                    <br>
+                    Dinas Lingkungan Hidup<br>
+                    Kabupaten Bojonegoro<br>
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
+                    <b>Tahun 2025</b>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/qgis2web_expressions.js"></script>
+    <script src="js/leaflet.js"></script>
+    <script src="js/L.Control.Layers.Tree.min.js"></script>
+    <script src="js/leaflet.rotatedMarker.js"></script>
+    <script src="js/leaflet.pattern.js"></script>
+    <script src="js/leaflet-hash.js"></script>
+    <script src="js/Autolinker.min.js"></script>
+    <script src="js/rbush.min.js"></script>
+    <script src="js/labelgun.min.js"></script>
+    <script src="js/labels.js"></script>
+
+    <script src="data/KabupatenBojonegoro_1.js"></script>
+    <script src="data/Pemakaman_2.js"></script>
+    <script src="data/Taman_3.js"></script>
+    <script src="data/HutanKota_4.js"></script>
+    <script src="data/JalurHijau_5.js"></script>
+    <script src="data/SempadanSungai_6.js"></script>
+    <script src="data/Penanaman_7.js"></script>
+
+    <script>
+        // 1. Inisialisasi Peta
+        var map = L.map('map', {
+            zoomControl: false, maxZoom: 38, minZoom: 1
+        }).fitBounds([[-7.199651538459647, 111.82023304443531], [-7.1122415997184545, 111.9304319164513]]);
+
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('WebGIS RTH &copy; 2025');
+        var autolinker = new Autolinker({ truncate: { length: 30, location: 'smart' } });
+
+        // Helper Popup
+        function removeEmptyRowsFromPopupContent(content, feature) {
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content;
+            var rows = tempDiv.querySelectorAll('tr');
+            for (var i = 0; i < rows.length; i++) {
+                var td = rows[i].querySelector('td.visible-with-data');
+                var key = td ? td.id : '';
+                if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                    rows[i].parentNode.removeChild(rows[i]);
+                }
+            }
+            return tempDiv.innerHTML;
+        }
+
+        // Control Zoom & Skala
+        L.control.zoom({ position: 'topleft' }).addTo(map);
+        var scaleControl = L.control.scale({ metric: true, imperial: false }).addTo(map);
+
+        // Base Layer (Google Satellite)
+        map.createPane('pane_GoogleSatellite_0');
+        map.getPane('pane_GoogleSatellite_0').style.zIndex = 400;
+        var layer_GoogleSatellite_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleSatellite_0', opacity: 1.0, minZoom: 1, maxZoom: 28,
+        });
+        map.addLayer(layer_GoogleSatellite_0);
+
+        // --- DEFINISI LAYER ---
+        // (Pastikan semua script pop_... dan style_... Anda disalin lengkap jika ingin spesifik, 
+        // di sini saya gunakan versi ringkas yang fungsional)
+
+        // 1. Kabupaten
+        function pop_Kab(f, l) { l.bindPopup(f.properties['giskemen_1'] || 'Kabupaten Bojonegoro'); }
+        var layer_KabupatenBojonegoro_1 = new L.geoJson(json_KabupatenBojonegoro_1, {
+            pane: 'pane_GoogleSatellite_0', // Z-index trik
+            style: { opacity: 1, color: 'rgba(255,1,1,1.0)', dashArray: '20,4,8,4', weight: 4, fillOpacity: 0 },
+            onEachFeature: pop_Kab
+        });
+        map.addLayer(layer_KabupatenBojonegoro_1);
+
+        // 2. Pemakaman
+        var layer_Pemakaman_2 = new L.geoJson(json_Pemakaman_2, {
+            style: { color: '#333', weight: 1, fillColor: '#902a16', fillOpacity: 1 },
+            onEachFeature: function (f, l) { l.bindPopup('<b>Makam:</b> ' + f.properties['Makam']); }
+        });
+        map.addLayer(layer_Pemakaman_2);
+
+        // 3. Taman
+        var layer_Taman_3 = new L.geoJson(json_Taman_3, {
+            style: { color: '#333', weight: 1, fillColor: '#23ff01', fillOpacity: 1 },
+            onEachFeature: function (f, l) { l.bindPopup('<b>Taman:</b> ' + f.properties['Name']); }
+        });
+        map.addLayer(layer_Taman_3);
+
+        // 4. Hutan Kota
+        var layer_HutanKota_4 = new L.geoJson(json_HutanKota_4, {
+            style: { color: '#333', weight: 1, fillColor: '#33a02c', fillOpacity: 1 },
+            onEachFeature: function (f, l) { l.bindPopup('<b>Hutan Kota:</b> ' + f.properties['Nama_RTH']); }
+        });
+        map.addLayer(layer_HutanKota_4);
+
+        // 5. Jalur Hijau
+        var layer_JalurHijau_5 = new L.geoJson(json_JalurHijau_5, {
+            style: { color: '#333', weight: 1, fillColor: '#b2df8a', fillOpacity: 1 },
+            onEachFeature: function (f, l) { l.bindPopup('<b>Jalur Hijau</b>'); }
+        });
+        map.addLayer(layer_JalurHijau_5);
+
+        // 6. Sempadan Sungai
+        var layer_SempadanSungai_6 = new L.geoJson(json_SempadanSungai_6, {
+            style: { color: '#333', weight: 1, fillColor: '#1f78b4', fillOpacity: 1 },
+            onEachFeature: function (f, l) { l.bindPopup('<b>Sempadan Sungai</b>'); }
+        });
+        map.addLayer(layer_SempadanSungai_6);
+
+        // 7. Penanaman (Point)
+        var layer_Penanaman_7 = new L.geoJson(json_Penanaman_7, {
+            pointToLayer: function (feature, latlng) {
+                return L.marker(latlng, { icon: L.icon({ iconUrl: 'markers/Penanaman_7.svg', iconSize: [18, 18] }) });
+            },
+            onEachFeature: function (f, l) { l.bindPopup('<b>Bibit:</b> ' + f.properties['JENIS TANA']); }
+        });
+        map.addLayer(layer_Penanaman_7);
+
+        // --- CONTROL LAYER ---
+        var overlaysTree = [
+            { label: '<img src="legend/Penanaman_7.png" height="15"/> Penanaman Bibit', layer: layer_Penanaman_7 },
+            { label: '<img src="legend/SempadanSungai_6.png" height="15"/> Sempadan Sungai', layer: layer_SempadanSungai_6 },
+            { label: '<img src="legend/JalurHijau_5.png" height="15"/> Jalur Hijau', layer: layer_JalurHijau_5 },
+            { label: '<img src="legend/HutanKota_4.png" height="15"/> Hutan Kota', layer: layer_HutanKota_4 },
+            { label: '<img src="legend/Taman_3.png" height="15"/> Taman', layer: layer_Taman_3 },
+            { label: '<img src="legend/Pemakaman_2.png" height="15"/> Pemakaman', layer: layer_Pemakaman_2 },
+            { label: '<img src="legend/KabupatenBojonegoro_1.png" height="15"/> Batas Kabupaten', layer: layer_KabupatenBojonegoro_1 },
+            { label: "Google Satellite", layer: layer_GoogleSatellite_0 },
+        ];
+
+        var lay = L.control.layers.tree(null, overlaysTree, { collapsed: false });
+        lay.addTo(map);
+
+        // --- PINDAHKAN CONTROL KE SIDEBAR ---
+        document.addEventListener("DOMContentLoaded", function () {
+            // Pindah Legenda
+            var legendContainer = lay.getContainer();
+            var sidebarLegend = document.getElementById('legend-target');
+            if (legendContainer && sidebarLegend) {
+                sidebarLegend.appendChild(legendContainer);
+            }
+
+            // Pindah Skala
+            var scaleContainer = scaleControl.getContainer();
+            var sidebarScale = document.getElementById('scale-target');
+            if (scaleContainer && sidebarScale) {
+                sidebarScale.appendChild(scaleContainer);
+                scaleContainer.style.margin = "0 auto";
+            }
+        });
+
+        // Label (Ringkas)
+        var i = 0; var labels = [];
+        layer_KabupatenBojonegoro_1.eachLayer(function (l) {
+            l.bindTooltip('<div style="font-weight:bold; text-shadow:1px 1px 0 #fff;">' + l.feature.properties['giskemen_1'] + '</div>', { permanent: true, direction: 'center' });
+            labels.push(l);
+        });
+
+    </script>
+</body>
+
+</html>
