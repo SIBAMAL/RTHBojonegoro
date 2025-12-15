@@ -348,12 +348,64 @@
 
         // --- DEFINISI LAYER ---
 
-        // 1. Kabupaten
-        function pop_Kab(f, l) { l.bindPopup(f.properties['giskemen_1'] || 'Kabupaten Bojonegoro'); }
+ // --- 1. Kabupaten Bojonegoro (DENGAN WARNA WARNI KECAMATAN) ---
+        
+        // Fungsi untuk menghasilkan warna unik berdasarkan nama Kecamatan
+        function getKecamatanColor(nama) {
+            // Jika nama tidak ada, kembalikan warna default
+            if (!nama) return '#ffffff';
+            
+            // Membuat 'hash' sederhana mengubah string menjadi angka
+            var hash = 0;
+            for (var i = 0; i < nama.length; i++) {
+                hash = nama.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            
+            // Daftar palet warna (12 warna berbeda)
+            var colors = [
+                '#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', 
+                '#a65628', '#f781bf', '#999999', '#66c2a5', '#fc8d62', '#8da0cb'
+            ];
+            
+            // Pilih warna berdasarkan angka hash
+            var index = Math.abs(hash) % colors.length;
+            return colors[index];
+        }
+
+        // Fungsi Style Utama
+        function style_KabupatenBojonegoro_1_0(feature) {
+            return {
+                pane: 'pane_KabupatenBojonegoro_1',
+                opacity: 1,
+                color: '#ffffff',       // Warna Garis Pinggir (Putih agar kontras)
+                dashArray: '10,5',      // Garis putus-putus
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,            // Ketebalan garis
+                fill: true,
+                fillOpacity: 0.2,       // <--- TRANSPARANSI (0.5 = setengah transparan)
+                fillColor: getKecamatanColor(feature.properties['giskemen_1']), // <--- WARNA BERBEDA TIAP KECAMATAN
+                interactive: true,
+            }
+        }
+
+        // Popup Helper
+        function pop_Kab(f, l) { 
+            l.bindPopup('<div style="font-size:14px;"><b>Kecamatan:</b> ' + (f.properties['giskemen_1'] || 'Tidak Diketahui') + '</div>'); 
+        }
+
+        // Definisi Layer (Pastikan Pane sudah dibuat sebelumnya)
+        map.createPane('pane_KabupatenBojonegoro_1');
+        map.getPane('pane_KabupatenBojonegoro_1').style.zIndex = 401;
+        
         var layer_KabupatenBojonegoro_1 = new L.geoJson(json_KabupatenBojonegoro_1, {
-            pane: 'pane_GoogleSatellite_0', // Z-index trik
-            style: { opacity: 1, color: 'rgba(255,1,1,1.0)', dashArray: '20,4,8,4', weight: 4, fillOpacity: 0 },
-            onEachFeature: pop_Kab
+            style: style_KabupatenBojonegoro_1_0, // Panggil fungsi style di atas
+            onEachFeature: function(feature, layer) {
+                pop_Kab(feature, layer);
+                // Label Nama Kecamatan
+                layer.bindTooltip('<div style="font-weight:bold; color:#fff; text-shadow: 1px 1px 2px #000;">' + feature.properties['giskemen_1'] + '</div>', 
+                {permanent: true, direction: 'center', className: 'label-kecamatan'});
+            }
         });
         map.addLayer(layer_KabupatenBojonegoro_1);
 
