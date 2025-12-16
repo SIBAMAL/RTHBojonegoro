@@ -252,7 +252,7 @@
                 <div class="north-arrow">&#11014;<br><span style="font-size:14px; font-weight:normal;">U</span></div>
                 <div id="scale-target"></div>
                 <div style="font-size: 12px; margin-top: 10px; color:#555;">
-                    Sistem Koordinat: WGS 84<br>Proyeksi: Geografis
+                    Sistem Koordinat: WGS 1984<br>Proyeksi: UTM Zona 49S
                 </div>
             </div>
 
@@ -414,63 +414,172 @@
         });
         map.addLayer(layer_KabupatenBojonegoro_1);
 
-        // 2. Pemakaman (MAGENTA/PINK)
+       // --- 2. Pemakaman (POPUP TABEL) ---
+        function pop_Pemakaman_2(feature, layer) {
+            var popupContent = `
+                <div style="min-width: 200px; font-family: Arial, sans-serif;">
+                    <h4 style="margin:0 0 10px 0; border-bottom:2px solid #d8ae47; color:#d8ae47; padding-bottom:5px;">
+                        Data Pemakaman
+                    </h4>
+                    <table style="width:100%; border-collapse: collapse; font-size:13px;">
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px; font-weight:bold; color:#555; width:40%;">Nama Makam</td>
+                            <td style="padding: 6px;">${feature.properties['Makam'] || '-'}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px; font-weight:bold; color:#555;">Desa</td>
+                            <td style="padding: 6px;">${feature.properties['Desa'] || '-'}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px; font-weight:bold; color:#555;">Kecamatan</td>
+                            <td style="padding: 6px;">${feature.properties['Kecamatan'] || '-'}</td>
+                        </tr>
+                         <tr>
+                            <td style="padding: 6px; font-weight:bold; color:#555;">Luas</td>
+                            <td style="padding: 6px;">${feature.properties['Luas_M2'] || '-'} m²</td>
+                        </tr>
+                    </table>
+                </div>`;
+            layer.bindPopup(popupContent, { maxHeight: 400 });
+        }
+
         var layer_Pemakaman_2 = new L.geoJson(json_Pemakaman_2, {
-            style: {
-                color: 'transparent',   // Garis Hilang
-                weight: 0,
-                fillColor: '#FF00FF',   // Warna Magenta
-                fillOpacity: 1
-            },
-            onEachFeature: function (f, l) { l.bindPopup('<b>Makam:</b> ' + f.properties['Makam']); }
+            style: { color: 'transparent', weight: 0, fillColor: '#FF00FF', fillOpacity: 1 }, // Warna Magenta
+            onEachFeature: function(feature, layer) {
+                pop_Pemakaman_2(feature, layer);
+            }
         });
         map.addLayer(layer_Pemakaman_2);
 
-        // 3. Taman (KUNING)
+        // --- 3. Taman (POPUP TABEL) ---
+        function pop_Taman_3(feature, layer) {
+            var popupContent = `
+                <div style="min-width: 200px; font-family: Arial, sans-serif;">
+                    <h4 style="margin:0 0 10px 0; border-bottom:2px solid #d8ae47; color:#d8ae47; padding-bottom:5px;">
+                        Data Taman
+                    </h4>
+                    <table style="width:100%; border-collapse: collapse; font-size:13px;">
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px; font-weight:bold; color:#555; width:40%;">Nama Taman</td>
+                            <td style="padding: 6px;">${feature.properties['Name'] || '-'}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px; font-weight:bold; color:#555;">Kecamatan</td>
+                            <td style="padding: 6px;">${feature.properties['Kecamatan'] || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px; font-weight:bold; color:#555;">Luas</td>
+                            <td style="padding: 6px;">${feature.properties['Luas_M2'] || '-'} m²</td>
+                        </tr>
+                    </table>
+                </div>`;
+            layer.bindPopup(popupContent, { maxHeight: 400 });
+        }
+
         var layer_Taman_3 = new L.geoJson(json_Taman_3, {
-            style: {
-                color: 'transparent',
-                weight: 0,
-                fillColor: '#FFD700',   // Warna Kuning Emas
-                fillOpacity: 1
-            },
-            onEachFeature: function (f, l) { l.bindPopup('<b>Taman:</b> ' + f.properties['Name']); }
+            style: { color: 'transparent', weight: 0, fillColor: '#FFD700', fillOpacity: 1 }, // Warna Kuning Emas
+            onEachFeature: function(feature, layer) {
+                pop_Taman_3(feature, layer);
+            }
         });
         map.addLayer(layer_Taman_3);
 
-        // 4. Hutan Kota (HIJAU TUA)
+        // --- 4. Hutan Kota (POPUP TABEL) ---
+        function pop_HutanKota_4(feature, layer) {
+            var popupContent = `
+                <div style="min-width: 250px; font-family: Arial, sans-serif;">
+                    <h4 style="margin:0 0 10px 0; border-bottom:2px solid #d8ae47; color:#d8ae47; padding-bottom:5px;">
+                        Data Hutan Kota
+                    </h4>
+                    <table style="width:100%; border-collapse: collapse; font-size:13px;">
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px; font-weight:bold; color:#555; width:40%;">Nama RTH</td>
+                            <td style="padding: 6px;">${feature.properties['Nama_RTH'] || '-'}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px; font-weight:bold; color:#555;">Klasifikasi</td>
+                            <td style="padding: 6px;">${feature.properties['Klas_RTH'] || '-'}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px; font-weight:bold; color:#555;">Lokasi</td>
+                            <td style="padding: 6px;">${feature.properties['Lokasi_RTH'] || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px; font-weight:bold; color:#555;">Luas</td>
+                            <td style="padding: 6px;">${feature.properties['Luas_M2'] || '-'} m²</td>
+                        </tr>
+                    </table>
+                </div>`;
+            layer.bindPopup(popupContent, { maxHeight: 400 });
+        }
+
         var layer_HutanKota_4 = new L.geoJson(json_HutanKota_4, {
-            style: {
-                color: 'transparent',
-                weight: 0,
-                fillColor: '#00AA00',   // Warna Hijau
-                fillOpacity: 1
-            },
-            onEachFeature: function (f, l) { l.bindPopup('<b>Hutan Kota:</b> ' + f.properties['Nama_RTH']); }
+            style: { color: 'transparent', weight: 0, fillColor: '#00AA00', fillOpacity: 1 }, // Warna Hijau
+            onEachFeature: function(feature, layer) {
+                pop_HutanKota_4(feature, layer);
+            }
         });
         map.addLayer(layer_HutanKota_4);
 
-        // 5. Jalur Hijau (HIJAU MUDA / LIME)
+        // --- 5. Jalur Hijau (POPUP TABEL) ---
+        function pop_JalurHijau_5(feature, layer) {
+            var popupContent = `
+                <div style="min-width: 200px; font-family: Arial, sans-serif;">
+                    <h4 style="margin:0 0 10px 0; border-bottom:2px solid #d8ae47; color:#d8ae47; padding-bottom:5px;">
+                        Data Jalur Hijau
+                    </h4>
+                    <table style="width:100%; border-collapse: collapse; font-size:13px;">
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px; font-weight:bold; color:#555; width:40%;">Kecamatan</td>
+                            <td style="padding: 6px;">${feature.properties['KECAMATAN'] || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px; font-weight:bold; color:#555;">Luas</td>
+                            <td style="padding: 6px;">${feature.properties['LUAS'] || '-'} m²</td>
+                        </tr>
+                    </table>
+                </div>`;
+            layer.bindPopup(popupContent, { maxHeight: 400 });
+        }
+
         var layer_JalurHijau_5 = new L.geoJson(json_JalurHijau_5, {
-            style: {
-                color: 'transparent',
-                weight: 0,
-                fillColor: '#ADFF2F',   // Warna GreenYellow
-                fillOpacity: 1
-            },
-            onEachFeature: function (f, l) { l.bindPopup('<b>Jalur Hijau</b>'); }
+            style: { color: 'transparent', weight: 0, fillColor: '#ADFF2F', fillOpacity: 1 }, // Warna Lime
+            onEachFeature: function (feature, layer) {
+                pop_JalurHijau_5(feature, layer);
+            }
         });
         map.addLayer(layer_JalurHijau_5);
 
-        // 6. Sempadan Sungai (CYAN / BIRU MUDA)
+        // --- 6. Sempadan Sungai (POPUP TABEL) ---
+        function pop_SempadanSungai_6(feature, layer) {
+            var popupContent = `
+                <div style="min-width: 200px; font-family: Arial, sans-serif;">
+                    <h4 style="margin:0 0 10px 0; border-bottom:2px solid #d8ae47; color:#d8ae47; padding-bottom:5px;">
+                        Data Sempadan Sungai
+                    </h4>
+                    <table style="width:100%; border-collapse: collapse; font-size:13px;">
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px; font-weight:bold; color:#555; width:40%;">Kecamatan</td>
+                            <td style="padding: 6px;">${feature.properties['KECAMATAN'] || '-'}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px; font-weight:bold; color:#555;">Desa</td>
+                            <td style="padding: 6px;">${feature.properties['DESA'] || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px; font-weight:bold; color:#555;">Luas</td>
+                            <td style="padding: 6px;">${feature.properties['LUASHA'] || '-'} Ha</td>
+                        </tr>
+                    </table>
+                </div>`;
+            layer.bindPopup(popupContent, { maxHeight: 400 });
+        }
+
         var layer_SempadanSungai_6 = new L.geoJson(json_SempadanSungai_6, {
-            style: {
-                color: 'transparent',
-                weight: 0,
-                fillColor: '#00FFFF',   // Warna Cyan
-                fillOpacity: 1
-            },
-            onEachFeature: function (f, l) { l.bindPopup('<b>Sempadan Sungai</b>'); }
+            style: { color: 'transparent', weight: 0, fillColor: '#00FFFF', fillOpacity: 1 }, // Warna Cyan
+            onEachFeature: function (feature, layer) {
+                pop_SempadanSungai_6(feature, layer);
+            }
         });
         map.addLayer(layer_SempadanSungai_6);
 
@@ -565,9 +674,9 @@
             // Pemakaman (Kuning Keorenan/Amber)
             { label: '<div style="display:inline-block; width:14px; height:14px; background:#FFC200; border: 1px solid #333; margin-right:5px; vertical-align:middle;"></div> Pemakaman', layer: layer_Pemakaman_2 },
             // --- BATAS KECAMATAN (DOT MERAH) ---
-            { 
-                label: '<div style="display:inline-block; width:14px; height:14px; background:transparent; border: 3px dotted red; box-shadow: 0 0 3px rgba(0,0,0,0.5); vertical-align:middle; margin-right:5px;"></div> Batas Kecamatan', 
-                layer: layer_KabupatenBojonegoro_1 
+            {
+                label: '<div style="display:inline-block; width:14px; height:14px; background:transparent; border: 3px dotted red; box-shadow: 0 0 3px rgba(0,0,0,0.5); vertical-align:middle; margin-right:5px;"></div> Batas Kecamatan',
+                layer: layer_KabupatenBojonegoro_1
             },
             // ------------------------------------------------------
 
