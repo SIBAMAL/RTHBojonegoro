@@ -212,6 +212,11 @@
                 border-top: 4px solid #d8ae47;
             }
         }
+
+        /* Efek untuk membuat ikon pohon lebih mencolok (Kuning Kehijauan Terang) */
+        .icon-bright {
+            filter: hue-rotate(45deg) brightness(1.5) drop-shadow(0 0 1px #fff);
+        }
     </style>
 
     <title>WebGIS RTH Bojonegoro</title>
@@ -263,8 +268,8 @@
                     <b>Lokasi:</b><br>
                     Kabupaten Bojonegoro, Jawa Timur<br><br>
                     <b>Sumber Data:</b><br>
-                    - Dinas Lingkungan Hidup Kab. Bojonegoro<br>
-                    - Citra Satelit Resolusi Tinggi<br><br>
+                    Dinas Lingkungan Hidup Kab. Bojonegoro<br>
+                    <br><br>
                 </div>
             </div>
 
@@ -274,7 +279,7 @@
                     <b>Penyusun:</b><br>
                     <img src="images/logo_unesa1.png" alt="Logo UNESA" style="height: 55px; width: auto;"
                         onerror="this.style.display='none'">
-                        <br>
+                    <br>
                     Universitas Negeri Surabaya<br>
                     <br>
                     <b>Mitra Kerjasama:</b><br>
@@ -348,25 +353,25 @@
 
         // --- DEFINISI LAYER ---
 
- // --- 1. Kabupaten Bojonegoro (DENGAN WARNA WARNI KECAMATAN) ---
-        
+        // --- 1. Kabupaten Bojonegoro (DENGAN WARNA WARNI KECAMATAN) ---
+
         // Fungsi untuk menghasilkan warna unik berdasarkan nama Kecamatan
         function getKecamatanColor(nama) {
             // Jika nama tidak ada, kembalikan warna default
             if (!nama) return '#ffffff';
-            
+
             // Membuat 'hash' sederhana mengubah string menjadi angka
             var hash = 0;
             for (var i = 0; i < nama.length; i++) {
                 hash = nama.charCodeAt(i) + ((hash << 5) - hash);
             }
-            
+
             // Daftar palet warna (12 warna berbeda)
             var colors = [
-                '#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', 
+                '#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33',
                 '#a65628', '#f781bf', '#999999', '#66c2a5', '#fc8d62', '#8da0cb'
             ];
-            
+
             // Pilih warna berdasarkan angka hash
             var index = Math.abs(hash) % colors.length;
             return colors[index];
@@ -377,7 +382,7 @@
             return {
                 pane: 'pane_KabupatenBojonegoro_1',
                 opacity: 1,
-                color: '#ffffff',       // Warna Garis Pinggir (Putih agar kontras)
+                color: 'red',       // Warna Garis Pinggir (Putih agar kontras)
                 dashArray: '10,5',      // Garis putus-putus
                 lineCap: 'butt',
                 lineJoin: 'miter',
@@ -390,78 +395,182 @@
         }
 
         // Popup Helper
-        function pop_Kab(f, l) { 
-            l.bindPopup('<div style="font-size:14px;"><b>Kecamatan:</b> ' + (f.properties['giskemen_1'] || 'Tidak Diketahui') + '</div>'); 
+        function pop_Kab(f, l) {
+            l.bindPopup('<div style="font-size:14px;"><b>Kecamatan:</b> ' + (f.properties['giskemen_1'] || 'Tidak Diketahui') + '</div>');
         }
 
         // Definisi Layer (Pastikan Pane sudah dibuat sebelumnya)
         map.createPane('pane_KabupatenBojonegoro_1');
         map.getPane('pane_KabupatenBojonegoro_1').style.zIndex = 401;
-        
+
         var layer_KabupatenBojonegoro_1 = new L.geoJson(json_KabupatenBojonegoro_1, {
             style: style_KabupatenBojonegoro_1_0, // Panggil fungsi style di atas
-            onEachFeature: function(feature, layer) {
+            onEachFeature: function (feature, layer) {
                 pop_Kab(feature, layer);
                 // Label Nama Kecamatan
-                layer.bindTooltip('<div style="font-weight:bold; color:#fff; text-shadow: 1px 1px 2px #000;">' + feature.properties['giskemen_1'] + '</div>', 
-                {permanent: true, direction: 'center', className: 'label-kecamatan'});
+                layer.bindTooltip('<div style="font-weight:bold; color:#fff; text-shadow: 1px 1px 2px #000;">' + feature.properties['giskemen_1'] + '</div>',
+                    { permanent: true, direction: 'center', className: 'label-kecamatan' });
             }
         });
         map.addLayer(layer_KabupatenBojonegoro_1);
 
-        // 2. Pemakaman
+        // 2. Pemakaman (MAGENTA/PINK)
         var layer_Pemakaman_2 = new L.geoJson(json_Pemakaman_2, {
-            style: { color: '#333', weight: 1, fillColor: '#902a16', fillOpacity: 1 },
+            style: {
+                color: 'transparent',   // Garis Hilang
+                weight: 0,
+                fillColor: '#FF00FF',   // Warna Magenta
+                fillOpacity: 1
+            },
             onEachFeature: function (f, l) { l.bindPopup('<b>Makam:</b> ' + f.properties['Makam']); }
         });
         map.addLayer(layer_Pemakaman_2);
 
-        // 3. Taman
+        // 3. Taman (KUNING)
         var layer_Taman_3 = new L.geoJson(json_Taman_3, {
-            style: { color: '#333', weight: 1, fillColor: '#23ff01', fillOpacity: 1 },
+            style: {
+                color: 'transparent',
+                weight: 0,
+                fillColor: '#FFD700',   // Warna Kuning Emas
+                fillOpacity: 1
+            },
             onEachFeature: function (f, l) { l.bindPopup('<b>Taman:</b> ' + f.properties['Name']); }
         });
         map.addLayer(layer_Taman_3);
 
-        // 4. Hutan Kota
+        // 4. Hutan Kota (HIJAU TUA)
         var layer_HutanKota_4 = new L.geoJson(json_HutanKota_4, {
-            style: { color: '#333', weight: 1, fillColor: '#33a02c', fillOpacity: 1 },
+            style: {
+                color: 'transparent',
+                weight: 0,
+                fillColor: '#00AA00',   // Warna Hijau
+                fillOpacity: 1
+            },
             onEachFeature: function (f, l) { l.bindPopup('<b>Hutan Kota:</b> ' + f.properties['Nama_RTH']); }
         });
         map.addLayer(layer_HutanKota_4);
 
-        // 5. Jalur Hijau
+        // 5. Jalur Hijau (HIJAU MUDA / LIME)
         var layer_JalurHijau_5 = new L.geoJson(json_JalurHijau_5, {
-            style: { color: '#333', weight: 1, fillColor: '#b2df8a', fillOpacity: 1 },
+            style: {
+                color: 'transparent',
+                weight: 0,
+                fillColor: '#ADFF2F',   // Warna GreenYellow
+                fillOpacity: 1
+            },
             onEachFeature: function (f, l) { l.bindPopup('<b>Jalur Hijau</b>'); }
         });
         map.addLayer(layer_JalurHijau_5);
 
-        // 6. Sempadan Sungai
+        // 6. Sempadan Sungai (CYAN / BIRU MUDA)
         var layer_SempadanSungai_6 = new L.geoJson(json_SempadanSungai_6, {
-            style: { color: '#333', weight: 1, fillColor: '#1f78b4', fillOpacity: 1 },
+            style: {
+                color: 'transparent',
+                weight: 0,
+                fillColor: '#00FFFF',   // Warna Cyan
+                fillOpacity: 1
+            },
             onEachFeature: function (f, l) { l.bindPopup('<b>Sempadan Sungai</b>'); }
         });
         map.addLayer(layer_SempadanSungai_6);
 
-        // 7. Penanaman (Point)
+        // --- 7. Penanaman Bibit (DENGAN POPUP TABEL DATA) ---
+
+        // A. Fungsi Membuat Popup Tabel
+        function pop_Penanaman_7(feature, layer) {
+            var popupContent = `
+                <div style="min-width: 250px; font-family: Arial, sans-serif;">
+                    <h4 style="margin:0 0 10px 0; border-bottom:2px solid #d8ae47; color:#d8ae47; padding-bottom:5px;">
+                        Data Penanaman
+                    </h4>
+                    <table style="width:100%; border-collapse: collapse; font-size:13px;">
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px; font-weight:bold; color:#555; width:40%;">Jenis Tanaman</td>
+                            <td style="padding: 6px;">${feature.properties['JENIS TANA'] || '-'}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px; font-weight:bold; color:#555;">Jumlah</td>
+                            <td style="padding: 6px;">${feature.properties['JUMLAH BAT'] || '-'} Batang</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px; font-weight:bold; color:#555;">Spesifikasi</td>
+                            <td style="padding: 6px;">${feature.properties['SPESIFIKAS'] || '-'}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px; font-weight:bold; color:#555;">Lokasi (Desa)</td>
+                            <td style="padding: 6px;">${feature.properties['NAMA DESA'] || '-'}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px; font-weight:bold; color:#555;">Kecamatan</td>
+                            <td style="padding: 6px;">${feature.properties['NAMA KECAM'] || '-'}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 6px; font-weight:bold; color:#555;">Sumber Bibit</td>
+                            <td style="padding: 6px;">${feature.properties['SUMBER BIB'] || '-'}</td>
+                        </tr>
+                         <tr>
+                            <td style="padding: 6px; font-weight:bold; color:#555;">Keterangan</td>
+                            <td style="padding: 6px;">${feature.properties['KET'] || '-'}</td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+            layer.bindPopup(popupContent, { maxHeight: 400 });
+        }
+
+        // B. Definisi Layer
+        map.createPane('pane_Penanaman_7');
+        map.getPane('pane_Penanaman_7').style.zIndex = 407;
+
         var layer_Penanaman_7 = new L.geoJson(json_Penanaman_7, {
+            // Mengatur Icon Marker
             pointToLayer: function (feature, latlng) {
-                return L.marker(latlng, { icon: L.icon({ iconUrl: 'markers/Penanaman_7.svg', iconSize: [18, 18] }) });
+                return L.marker(latlng, {
+                    icon: L.icon({
+                        iconUrl: 'legend/Penanaman_7.png',
+                        iconSize: [18, 18], // Ukuran Ikon
+                        iconAnchor: [9, 9], // Titik tengah ikon
+                        popupAnchor: [0, -10] // Posisi popup relative terhadap ikon
+                    })
+                });
             },
-            onEachFeature: function (f, l) { l.bindPopup('<b>Bibit:</b> ' + f.properties['JENIS TANA']); }
+            // Memanggil fungsi Popup saat fitur dibuat
+            onEachFeature: function (feature, layer) {
+                pop_Penanaman_7(feature, layer);
+                // Opsional: Tooltip nama tanaman saat mouse hover (tanpa klik)
+                layer.bindTooltip(feature.properties['JENIS TANA'], { direction: 'top', offset: [0, -10] });
+            }
         });
         map.addLayer(layer_Penanaman_7);
 
-        // --- CONTROL LAYER ---
+
+
+        // --- CONTROL LAYER / LEGENDA (VERSI FINAL - RINGKAS) ---
         var overlaysTree = [
-            { label: '<img src="legend/Penanaman_7.png" height="15"/> Penanaman Bibit', layer: layer_Penanaman_7 },
-            { label: '<img src="legend/SempadanSungai_6.png" height="15"/> Sempadan Sungai', layer: layer_SempadanSungai_6 },
-            { label: '<img src="legend/JalurHijau_5.png" height="15"/> Jalur Hijau', layer: layer_JalurHijau_5 },
-            { label: '<img src="legend/HutanKota_4.png" height="15"/> Hutan Kota', layer: layer_HutanKota_4 },
-            { label: '<img src="legend/Taman_3.png" height="15"/> Taman', layer: layer_Taman_3 },
-            { label: '<img src="legend/Pemakaman_2.png" height="15"/> Pemakaman', layer: layer_Pemakaman_2 },
-            { label: '<img src="legend/KabupatenBojonegoro_1.png" height="15"/> Batas Kabupaten', layer: layer_KabupatenBojonegoro_1 },
+            // Ikon Pohon
+            { label: '<img src="legend/Penanaman_7.png" height="15" style="filter: "/> Penanaman Bibit', layer: layer_Penanaman_7 },
+
+            // Sempadan Sungai (Cyan)
+            { label: '<div style="display:inline-block; width:14px; height:14px; background:#00FFFF; margin-right:5px; vertical-align:middle;"></div> Sempadan Sungai', layer: layer_SempadanSungai_6 },
+
+            // Jalur Hijau (Lime)
+            { label: '<div style="display:inline-block; width:14px; height:14px; background:#ADFF2F; margin-right:5px; vertical-align:middle;"></div> Jalur Hijau', layer: layer_JalurHijau_5 },
+
+            // Hutan Kota (Hijau)
+            { label: '<div style="display:inline-block; width:14px; height:14px; background:#00AA00; margin-right:5px; vertical-align:middle;"></div> Hutan Kota', layer: layer_HutanKota_4 },
+
+            // Taman (Kuning)
+            { label: '<div style="display:inline-block; width:14px; height:14px; background:#FFD700; margin-right:5px; vertical-align:middle;"></div> Taman', layer: layer_Taman_3 },
+
+            // Pemakaman (Kuning Keorenan/Amber)
+            { label: '<div style="display:inline-block; width:14px; height:14px; background:#FFC200; border: 1px solid #333; margin-right:5px; vertical-align:middle;"></div> Pemakaman', layer: layer_Pemakaman_2 },
+            // --- BATAS KECAMATAN (DOT MERAH) ---
+            { 
+                label: '<div style="display:inline-block; width:14px; height:14px; background:transparent; border: 3px dotted red; box-shadow: 0 0 3px rgba(0,0,0,0.5); vertical-align:middle; margin-right:5px;"></div> Batas Kecamatan', 
+                layer: layer_KabupatenBojonegoro_1 
+            },
+            // ------------------------------------------------------
+
             { label: "Google Satellite", layer: layer_GoogleSatellite_0 },
         ];
 
