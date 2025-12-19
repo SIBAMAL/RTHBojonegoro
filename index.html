@@ -399,19 +399,26 @@
             l.bindPopup('<div style="font-size:14px;"><b>Kecamatan:</b> ' + (f.properties['giskemen_1'] || 'Tidak Diketahui') + '</div>');
         }
 
-        // Definisi Layer (Pastikan Pane sudah dibuat sebelumnya)
+        // --- DEFINISI LAYER KABUPATEN (Tanpa Label Nama di Peta) ---
+        
         map.createPane('pane_KabupatenBojonegoro_1');
         map.getPane('pane_KabupatenBojonegoro_1').style.zIndex = 401;
 
         var layer_KabupatenBojonegoro_1 = new L.geoJson(json_KabupatenBojonegoro_1, {
-            style: style_KabupatenBojonegoro_1_0, // Panggil fungsi style di atas
+            // 1. Tetap gunakan Style yang sudah ada (Warna-warni tetap aman)
+            style: style_KabupatenBojonegoro_1_0, 
+            
+            // 2. Pengaturan Interaksi
             onEachFeature: function (feature, layer) {
+                // Tetap panggil fungsi popup agar saat diklik muncul tabel datanya
                 pop_Kab(feature, layer);
-                // Label Nama Kecamatan
-                layer.bindTooltip('<div style="font-weight:bold; color:#fff; text-shadow: 1px 1px 2px #000;">' + feature.properties['giskemen_1'] + '</div>',
-                    { permanent: true, direction: 'center', className: 'label-kecamatan' });
+
+                // --- BAGIAN INI SAYA HAPUS ---
+                // Dulu ada kode: layer.bindTooltip(...) 
+                // Sekarang dikosongkan agar tulisan nama tidak muncul di peta
             }
         });
+        
         map.addLayer(layer_KabupatenBojonegoro_1);
 
        // --- 2. Pemakaman (POPUP TABEL) ---
@@ -704,13 +711,7 @@
             }
         });
 
-        // Label (Ringkas)
-        var i = 0; var labels = [];
-        layer_KabupatenBojonegoro_1.eachLayer(function (l) {
-            l.bindTooltip('<div style="font-weight:bold; text-shadow:1px 1px 0 #fff;">' + l.feature.properties['giskemen_1'] + '</div>', { permanent: true, direction: 'center' });
-            labels.push(l);
-        });
-
+        
     </script>
 </body>
 
